@@ -29,9 +29,10 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const { id, email } = user;
+    const { id, email, name } = user;
     const playload = { email, sub: id };
     return {
+      user: { id, email, name },
       token: this.jwtService.sign(playload),
     };
   }
