@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { MailerService } from '@nestjs-modules/mailer';
 
 import * as bcrypt from 'bcrypt';
 
@@ -15,6 +16,7 @@ export class PasswordService {
     @InjectRepository(Token)
     private readonly tokenRepository: Repository<Token>,
     private usersService: UsersService,
+    private readonly mailerServide: MailerService,
   ) {}
 
   async forgot(email: string): Promise<void> {
@@ -28,6 +30,17 @@ export class PasswordService {
     await this.tokenRepository.save(token);
 
     // Criar email para resetar senha
+    await this.mailerServide.sendMail({
+      to: email,
+      from: 'no-replay@milagro.cc',
+      subject: 'Milagro - reset your account',
+      template: 'resetcount',
+      context: {
+        name: user.name,
+        link: `https://app.milagro.cc/reset`,
+        token: token.token,
+      },
+    });
   }
 
   async reset(resetPasswordDto: ResetPasswordDto): Promise<void> {
